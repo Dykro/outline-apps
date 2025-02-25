@@ -48,9 +48,7 @@ export async function main(...parameters) {
   await runAction('client/src/cordova/setup', ...parameters);
 
   if (verbose) {
-    cordova.on('verbose', message =>
-      console.debug(`[cordova:verbose] ${message}`)
-    );
+    cordova.on('verbose', message => console.debug(`[cordova:verbose] ${message}`));
   }
 
   // this is so cordova doesn't complain about not being in a cordova project
@@ -61,17 +59,10 @@ export async function main(...parameters) {
       return androidDebug(verbose);
     case 'android' + 'release':
       if (!process.env.JAVA_HOME) {
-        throw new ReferenceError(
-          'JAVA_HOME must be defined in the environment to build an Android Release!'
-        );
+        throw new ReferenceError('JAVA_HOME must be defined in the environment to build an Android Release!');
       }
 
-      if (
-        !(
-          process.env.ANDROID_KEY_STORE_PASSWORD &&
-          process.env.ANDROID_KEY_STORE_CONTENTS
-        )
-      ) {
+      if (!(process.env.ANDROID_KEY_STORE_PASSWORD && process.env.ANDROID_KEY_STORE_CONTENTS)) {
         throw new ReferenceError(
           "Both 'ANDROID_KEY_STORE_PASSWORD' and 'ANDROID_KEY_STORE_CONTENTS' must be defined in the environment to build an Android Release!"
         );
@@ -113,14 +104,7 @@ function getXcodeBuildArgs(platform) {
   }
   return [
     '-workspace',
-    path.join(
-      getRootDir(),
-      'client',
-      'src',
-      'cordova',
-      'apple',
-      workspaceFilename
-    ),
+    path.join(getRootDir(), 'client', 'src', 'cordova', 'apple', workspaceFilename),
     '-scheme',
     'Outline',
     '-destination',
@@ -129,9 +113,7 @@ function getXcodeBuildArgs(platform) {
 }
 
 async function appleDebug(platform) {
-  console.warn(
-    `WARNING: building "${platform}" in [DEBUG] mode. Do not publish this build!!`
-  );
+  console.warn(`WARNING: building "${platform}" in [DEBUG] mode. Do not publish this build!!`);
 
   return spawnStream(
     'xcodebuild',
@@ -146,20 +128,11 @@ async function appleDebug(platform) {
 }
 
 async function appleRelease(platform) {
-  return spawnStream(
-    'xcodebuild',
-    'clean',
-    ...getXcodeBuildArgs(platform),
-    'archive',
-    '-configuration',
-    'Release'
-  );
+  return spawnStream('xcodebuild', 'clean', ...getXcodeBuildArgs(platform), 'archive', '-configuration', 'Release');
 }
 
 async function androidDebug(verbose) {
-  console.warn(
-    'WARNING: building "android" in [DEBUG] mode. Do not publish this build!!'
-  );
+  console.warn(`WARNING: building "android" in [DEBUG] mode. Do not publish this build!!`);
 
   return cordova.compile({
     verbose,
@@ -179,12 +152,7 @@ const JAVA_BUNDLETOOL_VERSION = '1.8.2';
 const JAVA_BUNDLETOOL_RESOURCE_URL = `https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-${JAVA_BUNDLETOOL_VERSION}.jar`;
 
 async function androidRelease(ksPassword, ksContents, javaPath, verbose) {
-  const androidBuildPath = path.resolve(
-    getRootDir(),
-    'client',
-    'platforms',
-    'android'
-  );
+  const androidBuildPath = path.resolve(getRootDir(), 'platforms', 'android');
   const keystorePath = path.resolve(androidBuildPath, 'keystore.p12');
 
   await fs.writeFile(keystorePath, Buffer.from(ksContents, 'base64'));
@@ -218,15 +186,7 @@ async function androidRelease(ksPassword, ksContents, javaPath, verbose) {
     '-jar',
     bundletoolPath,
     'build-apks',
-    `--bundle=${path.resolve(
-      androidBuildPath,
-      'app',
-      'build',
-      'outputs',
-      'bundle',
-      'release',
-      'app-release.aab'
-    )}`,
+    `--bundle=${path.resolve(androidBuildPath, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab')}`,
     `--output=${outputPath}`,
     '--mode=universal',
     `--ks=${keystorePath}`,
